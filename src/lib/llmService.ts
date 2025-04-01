@@ -1,0 +1,85 @@
+
+import { Message } from '../components/ChatWidget/types';
+
+interface LLMServiceConfig {
+  apiKey?: string;
+  model?: string;
+  apiEndpoint?: string;
+}
+
+// Default configuration
+const defaultConfig: LLMServiceConfig = {
+  model: 'gpt-3.5-turbo', // Default OpenAI model
+  apiEndpoint: 'https://api.openai.com/v1/chat/completions',
+};
+
+export class LLMService {
+  private config: LLMServiceConfig;
+
+  constructor(config: LLMServiceConfig = {}) {
+    this.config = { ...defaultConfig, ...config };
+  }
+
+  async sendMessage(message: string, conversationHistory: Message[] = []): Promise<{ reply: string }> {
+    // If no API key is provided, fall back to mock API
+    if (!this.config.apiKey) {
+      console.warn('No API key provided, falling back to mock API');
+      return this.mockResponse(message);
+    }
+
+    try {
+      // Format conversation history for OpenAI API
+      const messages = [
+        ...conversationHistory.map(msg => ({
+          role: msg.sender === 'user' ? 'user' : 'assistant',
+          content: msg.text
+        })),
+        { role: 'user', content: message }
+      ];
+
+      // Make API request to OpenAI
+      const response = await fetch(this.config.apiEndpoint!, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this.config.apiKey}`
+        },
+        body: JSON.stringify({
+          model: this.config.model,
+          messages: messages,
+          temperature: 0.7,
+          max_tokens: 500
+        })
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(`API Error: ${error.error?.message || 'Unknown error'}`);
+      }
+
+      const data = await response.json();
+      return { 
+        reply: data.choices[0].message.content 
+      };
+    } catch (error) {
+      console.error('Error calling LLM API:', error);
+      return { 
+        reply: "I'm having trouble connecting to my brain right now. Please try again later." 
+      };
+    }
+  }
+
+  // Fallback to mock API if no API key is provided
+  private async mockResponse(message: string): Promise<{ reply: string }> {
+    const { mockChatResponse } = await import('./mockApi');
+    return mockChatResponse(message);
+  }
+}
+
+// Export a singleton instance with default configuration
+export const defaultLLMService = new LLMService();
+
+// Export a function to create a configured LLM service
+export const createLLMService = (config: LLMServiceConfig) => {
+  return new LLMService(config);
+};

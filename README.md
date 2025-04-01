@@ -28,7 +28,11 @@ function App() {
         welcomeMessage="👋 Hello! How can I help you today?"
         primaryColor="#4F46E5"
         position="bottom-right"
-        apiEndpoint="https://your-api-endpoint.com/chat"
+        llmConfig={{
+          apiKey: "your-openai-api-key", // Required for LLM integration
+          model: "gpt-3.5-turbo", // Optional, defaults to gpt-3.5-turbo
+          apiEndpoint: "https://api.openai.com/v1/chat/completions" // Optional, defaults to OpenAI
+        }}
       />
     </div>
   );
@@ -45,25 +49,35 @@ export default App;
 | `welcomeMessage` | string | 'Hi there! 👋 How can I help you today?' | The welcome message displayed when the chat is first opened |
 | `primaryColor` | string | '#3B82F6' | The primary color used for the chat button and user messages |
 | `position` | 'bottom-right' \| 'bottom-left' | 'bottom-right' | Position of the chat widget |
-| `apiEndpoint` | string | 'https://api.example.com/chat' | API endpoint for the chatbot backend |
+| `apiEndpoint` | string | 'https://api.openai.com/v1/chat/completions' | API endpoint for the chatbot backend |
+| `llmConfig` | LLMServiceConfig | undefined | Configuration for the LLM service |
 
-## API Integration
+## LLM Integration
 
-The widget sends POST requests to the specified `apiEndpoint` with the following structure:
+The widget now supports direct integration with OpenAI and other LLM APIs. To use it:
 
-Request:
-```json
-{
-  "message": "User's message here"
-}
+```jsx
+import { ChatbotWidget } from 'chatterpop-widget';
+
+// With OpenAI (default)
+<ChatbotWidget 
+  llmConfig={{
+    apiKey: "your-openai-api-key",
+    model: "gpt-3.5-turbo" // Or any other OpenAI model
+  }}
+/>
+
+// With a custom LLM API
+<ChatbotWidget 
+  llmConfig={{
+    apiKey: "your-api-key",
+    model: "your-model-name",
+    apiEndpoint: "https://your-custom-api-endpoint.com"
+  }}
+/>
 ```
 
-Expected Response:
-```json
-{
-  "reply": "Bot's response here"
-}
-```
+If no API key is provided, the widget will fall back to using a mock API for demonstration purposes.
 
 ## License
 

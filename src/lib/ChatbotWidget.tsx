@@ -1,6 +1,7 @@
 
 import React from 'react';
 import ChatWidget from '../components/ChatWidget';
+import { LLMService, LLMServiceConfig } from './llmService';
 
 export interface ChatbotWidgetProps {
   /**
@@ -29,16 +30,24 @@ export interface ChatbotWidgetProps {
   
   /**
    * API endpoint for the chatbot backend
-   * @default 'https://api.example.com/chat'
+   * @default 'https://api.openai.com/v1/chat/completions'
    */
   apiEndpoint?: string;
+
+  /**
+   * LLM configuration (apiKey, model, etc.)
+   */
+  llmConfig?: LLMServiceConfig;
 }
 
 /**
  * A customizable chat widget component that can be added to any React application
  */
 export const ChatbotWidget: React.FC<ChatbotWidgetProps> = (props) => {
-  return <ChatWidget {...props} />;
+  // Create LLM service with provided config
+  const llmService = props.llmConfig ? new LLMService(props.llmConfig) : undefined;
+
+  return <ChatWidget {...props} llmService={llmService} />;
 };
 
 export default ChatbotWidget;
