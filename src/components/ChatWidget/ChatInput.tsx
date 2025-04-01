@@ -35,8 +35,11 @@ const ChatInput: React.FC<ChatInputProps> = ({
           onChange={(e) => setMessage(e.target.value)}
           placeholder="Type your message..."
           disabled={isLoading}
-          className="flex-1 p-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          style={{ focusRing: primaryColor }}
+          className="flex-1 p-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2"
+          style={{ 
+            // Fix: Replace focusRing with proper CSS variables
+            "--tw-ring-color": primaryColor,
+          } as React.CSSProperties}
         />
         <button
           type="submit"
