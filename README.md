@@ -1,73 +1,70 @@
-# Welcome to your Lovable project
 
-## Project info
+# ChatterPop Widget
 
-**URL**: https://lovable.dev/projects/7989bbed-709c-429a-853b-b81d96e2eb1a
+A customizable chatbot widget built with React and TypeScript that can be easily integrated into any web application.
 
-## How can I edit this code?
+## Installation
 
-There are several ways of editing your application.
-
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/7989bbed-709c-429a-853b-b81d96e2eb1a) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+```bash
+npm install chatterpop-widget
+# or
+yarn add chatterpop-widget
 ```
 
-**Edit a file directly in GitHub**
+## Usage
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+```jsx
+import { ChatbotWidget } from 'chatterpop-widget';
+import 'chatterpop-widget/dist/style.css'; // Import styles
 
-**Use GitHub Codespaces**
+function App() {
+  return (
+    <div className="App">
+      <h1>My Website</h1>
+      
+      {/* Add the ChatbotWidget component */}
+      <ChatbotWidget 
+        botName="AssistantBot"
+        welcomeMessage="👋 Hello! How can I help you today?"
+        primaryColor="#4F46E5"
+        position="bottom-right"
+        apiEndpoint="https://your-api-endpoint.com/chat"
+      />
+    </div>
+  );
+}
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+export default App;
+```
 
-## What technologies are used for this project?
+## Props
 
-This project is built with .
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `botName` | string | 'ChatBot' | The name of the chatbot displayed in the header |
+| `welcomeMessage` | string | 'Hi there! 👋 How can I help you today?' | The welcome message displayed when the chat is first opened |
+| `primaryColor` | string | '#3B82F6' | The primary color used for the chat button and user messages |
+| `position` | 'bottom-right' \| 'bottom-left' | 'bottom-right' | Position of the chat widget |
+| `apiEndpoint` | string | 'https://api.example.com/chat' | API endpoint for the chatbot backend |
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## API Integration
 
-## How can I deploy this project?
+The widget sends POST requests to the specified `apiEndpoint` with the following structure:
 
-Simply open [Lovable](https://lovable.dev/projects/7989bbed-709c-429a-853b-b81d96e2eb1a) and click on Share -> Publish.
+Request:
+```json
+{
+  "message": "User's message here"
+}
+```
 
-## Can I connect a custom domain to my Lovable project?
+Expected Response:
+```json
+{
+  "reply": "Bot's response here"
+}
+```
 
-Yes it is!
+## License
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+MIT
