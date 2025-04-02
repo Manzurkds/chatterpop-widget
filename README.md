@@ -88,9 +88,14 @@ To avoid CORS issues with LLM APIs, a simple Express server is included:
 npm install express cors body-parser http-proxy-middleware
 ```
 
-2. Start the server:
+2. Start the server (using ES modules):
 ```bash
 node server/index.js
+```
+
+Or if you prefer to run with explicit module type:
+```bash
+node --experimental-modules server/index.js
 ```
 
 The server will:
