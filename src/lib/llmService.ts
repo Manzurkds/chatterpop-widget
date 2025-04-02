@@ -20,7 +20,7 @@ export class LLMService {
     this.config = { ...defaultConfig, ...config };
   }
 
-  async sendMessage(message: string, conversationHistory: Message[] = []): Promise<{ reply: string }> {
+  async sendMessage(message: string, conversationHistory: Message[] = []): Promise<{ reply: string, zalandoData?: any, contentfulData?: any }> {
     // If no API key is provided, fall back to mock API
     if (!this.config.apiKey) {
       console.warn('No API key provided, falling back to mock API');
@@ -56,7 +56,9 @@ export class LLMService {
 
       const data = await response.json();
       return { 
-        reply: data.reply 
+        reply: data.reply,
+        zalandoData: data.zalandoData,
+        contentfulData: data.contentfulData
       };
     } catch (error) {
       console.error('Error calling LLM API:', error);

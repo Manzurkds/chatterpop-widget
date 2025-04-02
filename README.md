@@ -77,6 +77,18 @@ import { ChatbotWidget } from 'chatterpop-widget';
 />
 ```
 
+## API Integration
+
+The widget now integrates with Zalando's search API and Contentful's GraphQL API. When users send a message, it:
+
+1. Forwards the user's message to Zalando's search API
+2. Takes the search results and sends them to Contentful's GraphQL API
+3. Combines all data with the original message before sending to the LLM
+
+To use this functionality, you need to set environment variables for Contentful:
+- `CONTENTFUL_SPACE_ID`: Your Contentful space ID
+- `CONTENTFUL_TOKEN`: Your Contentful access token
+
 If no API key is provided, the widget will fall back to using a mock API for demonstration purposes.
 
 ## Server Setup

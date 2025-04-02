@@ -19,42 +19,127 @@ app.use(bodyParser.json());
 // Serve static files from the dist directory (after building the React app)
 app.use(express.static(path.join(__dirname, '../dist')));
 
+// Helper function to minify GraphQL queries (simplified version)
+const gqlmin = (query) => {
+  return query.replace(/\s+/g, ' ').trim();
+};
+
 // API proxy endpoint for chat requests
 app.post('/api/chat', async (req, res) => {
   try {
     const { messages, config } = req.body;
     
-    if (!config || !config.apiKey) {
-      return res.status(400).json({ error: { message: 'API key is required' } });
+    // Get the last user message
+    const lastUserMessage = messages.filter(msg => msg.role === 'user').pop()?.content || '';
+    
+    if (!lastUserMessage) {
+      return res.status(400).json({ error: { message: 'No user message found' } });
     }
 
-    const response = await fetch(config.apiEndpoint || 'https://api.openai.com/v1/chat/completions', {
+    // Step 1: Call the Zalando API with the user's message
+    const zalandoResponse = await fetch(`https://partner.zalando.com/api/search?query=${encodeURIComponent(lastUserMessage)}&page=1`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!zalandoResponse.ok) {
+      console.error('Zalando API Error:', await zalandoResponse.text());
+      return res.status(zalandoResponse.status).json({ 
+        error: { message: 'Error from Zalando API' } 
+      });
+    }
+
+    const zalandoData = await zalandoResponse.json();
+    
+    // Step 2: Call the Contentful GraphQL API with the results from Zalando
+    // Note: You would need to define your GraphQL query based on what you're trying to achieve
+    const contentfulQuery = `
+      query GetContent($searchResults: JSON) {
+        contentCollection(where: { searchData: $searchResults }) {
+          items {
+            title
+            description
+            # Add any other fields you need
+          }
+        }
+      }
+    `;
+    
+    const contentfulSpaceId = process.env.CONTENTFUL_SPACE_ID || 'your-default-space-id';
+    const contentfulToken = process.env.CONTENTFUL_TOKEN || 'your-default-token';
+    
+    const contentfulResponse = await fetch(`https://graphql.contentful.com/content/v1/spaces/${contentfulSpaceId}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${config.apiKey}`
+        'Authorization': `Bearer ${contentfulToken}`
       },
       body: JSON.stringify({
-        model: config.model || 'gpt-3.5-turbo',
-        messages: messages,
-        temperature: 0.7,
-        max_tokens: 500
+        query: gqlmin(contentfulQuery),
+        variables: { searchResults: zalandoData }
       })
     });
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      return res.status(response.status).json(errorData);
+    if (!contentfulResponse.ok) {
+      console.error('Contentful API Error:', await contentfulResponse.text());
+      return res.status(contentfulResponse.status).json({ 
+        error: { message: 'Error from Contentful API' } 
+      });
     }
 
-    const data = await response.json();
-    return res.json({ 
-      reply: data.choices[0].message.content 
-    });
+    const contentfulData = await contentfulResponse.json();
+    
+    // If the original request had an API key, still make the LLM call with the enriched data
+    if (config && config.apiKey) {
+      // Craft a new message that includes the API data
+      const enrichedMessage = `User asked: ${lastUserMessage}\n\nZalando search results: ${JSON.stringify(zalandoData)}\n\nContentful data: ${JSON.stringify(contentfulData)}`;
+      
+      // Replace the last user message with our enriched one
+      const enhancedMessages = [...messages];
+      const lastUserIndex = enhancedMessages.findIndex(msg => msg.role === 'user' && msg.content === lastUserMessage);
+      if (lastUserIndex !== -1) {
+        enhancedMessages[lastUserIndex] = { role: 'user', content: enrichedMessage };
+      }
+
+      const llmResponse = await fetch(config.apiEndpoint || 'https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${config.apiKey}`
+        },
+        body: JSON.stringify({
+          model: config.model || 'gpt-3.5-turbo',
+          messages: enhancedMessages,
+          temperature: 0.7,
+          max_tokens: 500
+        })
+      });
+
+      if (!llmResponse.ok) {
+        const errorData = await llmResponse.json();
+        return res.status(llmResponse.status).json(errorData);
+      }
+
+      const llmData = await llmResponse.json();
+      return res.json({ 
+        reply: llmData.choices[0].message.content,
+        zalandoData,
+        contentfulData
+      });
+    } else {
+      // If no API key is provided, just return the data from both APIs
+      return res.json({ 
+        reply: `Here are the results from Zalando and Contentful for your query: "${lastUserMessage}"`,
+        zalandoData,
+        contentfulData
+      });
+    }
   } catch (error) {
     console.error('Server Error:', error);
     return res.status(500).json({ 
-      error: { message: 'Server error processing your request' } 
+      error: { message: 'Server error processing your request: ' + error.message } 
     });
   }
 });

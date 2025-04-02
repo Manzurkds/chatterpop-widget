@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { MessageCircle, X } from 'lucide-react';
 import ChatHeader from './ChatHeader';
@@ -27,6 +28,8 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [zalandoData, setZalandoData] = useState<any>(null);
+  const [contentfulData, setContentfulData] = useState<any>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const chatService = llmService || defaultLLMService;
@@ -68,6 +71,11 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
 
     try {
       const data = await chatService.sendMessage(text, messages);
+      
+      // Store API data if available
+      if (data.zalandoData) setZalandoData(data.zalandoData);
+      if (data.contentfulData) setContentfulData(data.contentfulData);
+      
       const botMessage: Message = {
         id: (Date.now() + 1).toString(),
         text: data.reply || "Sorry, I couldn't process that request.",
