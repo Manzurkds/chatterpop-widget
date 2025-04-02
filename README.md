@@ -82,7 +82,7 @@ import { ChatbotWidget } from 'chatterpop-widget';
 The widget now integrates with Zalando's search API and Contentful's GraphQL API. When users send a message, it:
 
 1. Forwards the user's message to Zalando's search API
-2. Takes the search results and sends them to Contentful's GraphQL API
+2. Takes the search results and sends them to Contentful's GraphQL API using a detailed article query structure
 3. Combines all data with the original message before sending to the LLM
 
 To use this functionality, you need to set environment variables for Contentful:

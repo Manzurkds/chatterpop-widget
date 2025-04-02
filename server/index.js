@@ -27,7 +27,7 @@ const gqlmin = (query) => {
 // API proxy endpoint for chat requests
 app.post('/api/chat', async (req, res) => {
   try {
-    const { messages, config } = req.body;
+    const { messages, config, contentfulQuery } = req.body;
     
     // Get the last user message
     const lastUserMessage = messages.filter(msg => msg.role === 'user').pop()?.content || '';
@@ -54,21 +54,16 @@ app.post('/api/chat', async (req, res) => {
     const zalandoData = await zalandoResponse.json();
     
     // Step 2: Call the Contentful GraphQL API with the results from Zalando
-    // Note: You would need to define your GraphQL query based on what you're trying to achieve
-    const contentfulQuery = `
-      query GetContent($searchResults: JSON) {
-        contentCollection(where: { searchData: $searchResults }) {
-          items {
-            title
-            description
-            # Add any other fields you need
-          }
-        }
-      }
-    `;
-    
+    // We'll use the provided GraphQL query or fall back to a default one
     const contentfulSpaceId = process.env.CONTENTFUL_SPACE_ID || 'your-default-space-id';
     const contentfulToken = process.env.CONTENTFUL_TOKEN || 'your-default-token';
+    
+    // Extract a reasonable slug from the user message for the GraphQL query
+    // This is a simplistic approach; in a real app, you might derive this differently
+    const slug = lastUserMessage.toLowerCase()
+      .replace(/[^\w\s]/gi, '')
+      .replace(/\s+/g, '-')
+      .substring(0, 50);
     
     const contentfulResponse = await fetch(`https://graphql.contentful.com/content/v1/spaces/${contentfulSpaceId}`, {
       method: 'POST',
@@ -77,8 +72,12 @@ app.post('/api/chat', async (req, res) => {
         'Authorization': `Bearer ${contentfulToken}`
       },
       body: JSON.stringify({
-        query: gqlmin(contentfulQuery),
-        variables: { searchResults: zalandoData }
+        query: gqlmin(contentfulQuery || '{ pageArticleCollection(limit: 5) { items { title slug } } }'),
+        variables: { 
+          slug: slug,
+          preview: false,
+          searchResults: zalandoData 
+        }
       })
     });
 
