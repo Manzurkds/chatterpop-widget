@@ -54,7 +54,7 @@ export default App;
 
 ## LLM Integration
 
-The widget now supports direct integration with OpenAI and other LLM APIs. To use it:
+The widget supports direct integration with OpenAI and other LLM APIs. To use it:
 
 ```jsx
 import { ChatbotWidget } from 'chatterpop-widget';
@@ -78,6 +78,25 @@ import { ChatbotWidget } from 'chatterpop-widget';
 ```
 
 If no API key is provided, the widget will fall back to using a mock API for demonstration purposes.
+
+## Server Setup
+
+To avoid CORS issues with LLM APIs, a simple Express server is included:
+
+1. Install server dependencies:
+```bash
+npm install express cors body-parser http-proxy-middleware
+```
+
+2. Start the server:
+```bash
+node server/index.js
+```
+
+The server will:
+- Run on port 3001 by default (can be changed with PORT environment variable)
+- Provide a proxy endpoint at `/api/chat` that forwards requests to the LLM API
+- Serve the built frontend application
 
 ## License
 

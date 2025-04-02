@@ -1,7 +1,7 @@
 
 import { Message } from '../components/ChatWidget/types';
 
-interface LLMServiceConfig {
+export interface LLMServiceConfig {
   apiKey?: string;
   model?: string;
   apiEndpoint?: string;
@@ -37,18 +37,15 @@ export class LLMService {
         { role: 'user', content: message }
       ];
 
-      // Make API request to OpenAI
-      const response = await fetch(this.config.apiEndpoint!, {
+      // Use the proxy server endpoint instead of calling the LLM API directly
+      const response = await fetch('/api/chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.config.apiKey}`
         },
         body: JSON.stringify({
-          model: this.config.model,
-          messages: messages,
-          temperature: 0.7,
-          max_tokens: 500
+          messages,
+          config: this.config
         })
       });
 
@@ -59,7 +56,7 @@ export class LLMService {
 
       const data = await response.json();
       return { 
-        reply: data.choices[0].message.content 
+        reply: data.reply 
       };
     } catch (error) {
       console.error('Error calling LLM API:', error);
