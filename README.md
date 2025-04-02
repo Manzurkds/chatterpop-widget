@@ -85,7 +85,7 @@ To avoid CORS issues with LLM APIs, a simple Express server is included:
 
 1. Install server dependencies:
 ```bash
-npm install express cors body-parser http-proxy-middleware
+npm install express cors body-parser
 ```
 
 2. Start the server (using ES modules):

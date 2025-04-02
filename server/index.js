@@ -1,7 +1,6 @@
 
 import express from 'express';
 import cors from 'cors';
-import { createProxyMiddleware } from 'http-proxy-middleware';
 import bodyParser from 'body-parser';
 import path from 'path';
 import { fileURLToPath } from 'url';
