@@ -1,7 +1,12 @@
 
-const fs = require('fs');
-const path = require('path');
-const { execSync } = require('child_process');
+import { fileURLToPath } from 'url';
+import { dirname, resolve } from 'path';
+import { writeFileSync, copyFileSync, mkdirSync, existsSync } from 'fs';
+import { execSync } from 'child_process';
+
+// Get the directory path
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 // Colors for console output
 const colors = {
@@ -20,31 +25,31 @@ console.log(`${colors.blue}→ Running production build...${colors.reset}`);
 execSync('npm run build', { stdio: 'inherit' });
 
 // Create a widget distribution directory
-const distDir = path.resolve(__dirname, '../dist');
-const widgetDir = path.resolve(__dirname, '../widget-dist');
+const distDir = resolve(__dirname, '../dist');
+const widgetDir = resolve(__dirname, '../widget-dist');
 
-if (!fs.existsSync(widgetDir)) {
-  fs.mkdirSync(widgetDir);
+if (!existsSync(widgetDir)) {
+  mkdirSync(widgetDir);
 }
 
 // Copy the needed files to the widget distribution directory
 console.log(`${colors.blue}→ Copying widget files to distribution folder...${colors.reset}`);
-fs.copyFileSync(
-  path.join(distDir, 'chatterpop.iife.js'),
-  path.join(widgetDir, 'chatterpop.js')
+copyFileSync(
+  resolve(distDir, 'chatterpop.iife.js'),
+  resolve(widgetDir, 'chatterpop.js')
 );
-fs.copyFileSync(
-  path.join(distDir, 'chatterpop.css'),
-  path.join(widgetDir, 'chatterpop.css')
+copyFileSync(
+  resolve(distDir, 'chatterpop.css'),
+  resolve(widgetDir, 'chatterpop.css')
 );
-fs.copyFileSync(
-  path.join(__dirname, '../public/widget-demo.html'),
-  path.join(widgetDir, 'demo.html')
+copyFileSync(
+  resolve(__dirname, '../public/widget-demo.html'),
+  resolve(widgetDir, 'demo.html')
 );
 
 // Create a simple README for the widget distribution
-fs.writeFileSync(
-  path.join(widgetDir, 'README.md'),
+writeFileSync(
+  resolve(widgetDir, 'README.md'),
   `# ChatterPop Widget
 
 This folder contains the standalone widget distribution files:

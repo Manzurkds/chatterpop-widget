@@ -54,7 +54,7 @@ function initChatterPopWidget(config: ChatbotConfig = {}) {
         primaryColor={config.primaryColor}
         position={config.position}
         apiEndpoint={config.apiEndpoint}
-        llmService={llmService}
+        llmConfig={config.llmConfig}
       />
     </React.StrictMode>
   );
@@ -72,6 +72,7 @@ declare global {
     };
     CONTENTFUL_SPACE_ID?: string;
     CONTENTFUL_TOKEN?: string;
+    ChatterPopConfig?: ChatbotConfig;
   }
 }
 
@@ -86,12 +87,5 @@ document.addEventListener('DOMContentLoaded', () => {
     initChatterPopWidget(window.ChatterPopConfig);
   }
 });
-
-// Also add a separate type declaration for auto-initialization
-declare global {
-  interface Window {
-    ChatterPopConfig?: ChatbotConfig;
-  }
-}
 
 export default initChatterPopWidget;
