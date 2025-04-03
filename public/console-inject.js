@@ -58,15 +58,35 @@
       
       // Wait a moment for everything to initialize
       setTimeout(() => {
-        // Check if ChatterPop is available
-        if (window.ChatterPop) {
+        // Check if ChatterPop is properly defined with init function
+        if (window.ChatterPop && typeof window.ChatterPop.init === 'function') {
           // Initialize the widget
           window.ChatterPop.init(config);
           console.log("ChatterPop: Widget initialized successfully!");
         } else {
-          console.error("ChatterPop: Widget failed to initialize. The ChatterPop object is not available.");
+          console.error("ChatterPop: Widget failed to initialize. The ChatterPop object is not properly defined.");
+          console.log("ChatterPop:", window.ChatterPop);
+          
+          // Fallback: Check if it's available as a default export
+          if (window.chatterpop && typeof window.chatterpop.default === 'function') {
+            window.chatterpop.default(config);
+            console.log("ChatterPop: Widget initialized using default export!");
+          } else {
+            // Create a container and display error
+            const errorContainer = document.createElement('div');
+            errorContainer.style.position = 'fixed';
+            errorContainer.style.bottom = '20px';
+            errorContainer.style.right = '20px';
+            errorContainer.style.backgroundColor = '#f44336';
+            errorContainer.style.color = 'white';
+            errorContainer.style.padding = '10px';
+            errorContainer.style.borderRadius = '5px';
+            errorContainer.style.zIndex = '9999';
+            errorContainer.textContent = 'ChatterPop initialization failed';
+            document.body.appendChild(errorContainer);
+          }
         }
-      }, 500);
+      }, 1000); // Increased timeout to give more time for initialization
     } catch (error) {
       console.error("ChatterPop: Failed to load widget:", error);
     }
