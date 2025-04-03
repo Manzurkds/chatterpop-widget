@@ -1,3 +1,4 @@
+
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
@@ -18,5 +19,22 @@ export default defineConfig(({ mode }) => ({
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
+  },
+  build: {
+    lib: mode === 'production' ? {
+      entry: path.resolve(__dirname, 'src/standalone-widget.tsx'),
+      name: 'ChatterPop',
+      fileName: (format) => `chatterpop.${format}.js`,
+      formats: ['iife', 'es'],
+    } : undefined,
+    rollupOptions: mode === 'production' ? {
+      output: {
+        // Ensure CSS is bundled with the JavaScript
+        assetFileNames: (assetInfo) => {
+          if (assetInfo.name === 'style.css') return 'chatterpop.css';
+          return assetInfo.name;
+        },
+      },
+    } : undefined,
   },
 }));

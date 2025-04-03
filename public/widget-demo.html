@@ -1,0 +1,41 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ChatterPop Widget Demo</title>
+  <!-- Include the ChatterPop CSS -->
+  <link rel="stylesheet" href="./chatterpop.css">
+</head>
+<body>
+  <h1>ChatterPop Widget Demo</h1>
+  <p>This is a simple demo showing how to embed the ChatterPop widget in any website.</p>
+
+  <!-- Include the ChatterPop JavaScript -->
+  <script src="./chatterpop.iife.js"></script>
+  
+  <!-- Configure and initialize the widget -->
+  <script>
+    window.ChatterPopConfig = {
+      botName: "Demo Bot",
+      welcomeMessage: "👋 Hello! This is a standalone widget demo.",
+      primaryColor: "#4F46E5",
+      position: "bottom-right",
+      // Optional: Add your API keys for production use
+      // llmConfig: {
+      //   apiKey: "your-api-key-here",
+      //   model: "gpt-3.5-turbo"
+      // },
+      // contentfulSpaceId: "your-contentful-space-id",
+      // contentfulToken: "your-contentful-token"
+    };
+
+    // Optional: Manual initialization
+    // const widget = window.ChatterPop.init(window.ChatterPopConfig);
+    
+    // To unmount the widget later:
+    // widget.unmount();
+  </script>
+</body>
+</html>
