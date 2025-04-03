@@ -20,6 +20,10 @@ export default defineConfig(({ mode }: ConfigEnv) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  define: {
+    // Provide a polyfill for process.env.NODE_ENV in the browser
+    'process.env.NODE_ENV': JSON.stringify(mode)
+  },
   build: {
     lib: mode === 'production' ? {
       entry: path.resolve(__dirname, 'src/standalone-widget.tsx'),
